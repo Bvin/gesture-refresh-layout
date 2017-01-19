@@ -1,5 +1,30 @@
 # GestureRefreshLayout
-Android手势刷新布局
+[![Release](https://jitpack.io/v/Bvin/gesture-refresh-layout.svg)]
+(https://jitpack.io/#Bvin/gesture-refresh-layout)
+
+Android gesture refresh layout.
+
+## Installation
+First, in your project's build.gradle add the jitpack.io repository like this:
+```
+allprojects {
+ repositories {
+    ...
+    jcenter()
+    maven { url "https://jitpack.io" }
+ }
+}
+```
+*Note: do not add the jitpack.io repository under buildscript.*
+
+
+Then, add the following dependency to your module's build.gradle file:
+```
+dependencies {
+    ...
+    compile 'com.google.android:flexbox:0.2.5'
+}
+```
 
 ## Usage
 ```xml
@@ -17,6 +42,30 @@ Android手势刷新布局
 
 ---
 中文版
+
+Android手势刷新布局
+
+## 安装
+首先，在项目根目录的build.gradle中添加JitPack依赖如下：
+```
+allprojects {
+ repositories {
+    ...
+    jcenter()
+    maven { url "https://jitpack.io" }
+ }
+}
+```
+注意：不要把JitPack的依赖放在buildscript里面，否则会出现无法解析远程依赖的错误。
+
+然后，再你需要使用的Module中的build.gradle添加以下依赖：
+```
+dependencies {
+    ...
+    compile 'com.google.android:flexbox:0.2.5'
+}
+```
+
 ## 用法
 通常可以在GestureRefreshLayout布局里面添加子视图来实现刷新功能，第一个应为内容视图，第二个应为刷新视图，
 不接受大于2个的子视图。
