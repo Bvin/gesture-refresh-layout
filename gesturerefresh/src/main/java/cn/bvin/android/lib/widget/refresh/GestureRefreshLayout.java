@@ -181,6 +181,9 @@ public class GestureRefreshLayout extends ViewGroup {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        if (mRefreshView == null) {
+            return;
+        }
         reset();
     }
 
