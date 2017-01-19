@@ -339,16 +339,22 @@ public class GestureRefreshLayout extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         Log.d(TAG, "onMeasure: ");
         if (mTarget == null) {
             ensureTarget();
         }
+
         if (mTarget == null) {
             return;
         }
         /*mTarget.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(), MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));*/
         measureChild(mTarget, widthMeasureSpec, heightMeasureSpec);
+
+        if (mRefreshView == null) {
+            return;
+        }
         measureChild(mRefreshView, widthMeasureSpec, heightMeasureSpec);
         if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
             mOriginalOffsetCalculated = true;
@@ -383,12 +389,16 @@ public class GestureRefreshLayout extends ViewGroup {
         final View child = mTarget;
         final int childLeft = getPaddingLeft();
         int childTop = getPaddingTop();
-        if (mTranslateContent) {
+        if (mTranslateContent && mRefreshView != null) {
             childTop += mRefreshView.getMeasuredHeight() + mCurrentTargetOffsetTop;
         }
         final int childWidth = width - getPaddingLeft() - getPaddingRight();
         final int childHeight = height - getPaddingTop() - getPaddingBottom();
         child.layout(childLeft, childTop, childLeft + mTarget.getMeasuredWidth(), childTop + mTarget.getMeasuredHeight());
+
+        if (mRefreshView == null) {
+            return;
+        }
 
         mRefreshView.layout(childLeft, mCurrentTargetOffsetTop,
                 childLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
@@ -427,6 +437,11 @@ public class GestureRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+        if (mRefreshView == null) {
+            return false;
+        }
+
         Log.d(TAG, "onInterceptTouchEvent: "+ev.toString());
         final int action = MotionEventCompat.getActionMasked(ev);
 
@@ -523,6 +538,11 @@ public class GestureRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+
+        if (mRefreshView == null) {
+            return false;
+        }
+
         Log.d(TAG, "onTouchEvent: "+ev.toString());
         final int action = MotionEventCompat.getActionMasked(ev);
 
