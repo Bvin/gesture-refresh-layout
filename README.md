@@ -46,7 +46,7 @@ dependencies {
 Android手势刷新布局
 
 ## 安装
-首先，在项目根目录的build.gradle中添加JitPack依赖如下：
+首先，在项目根目录的build.gradle中添加JitPack远程仓库如下：
 ```
 allprojects {
  repositories {
@@ -56,7 +56,7 @@ allprojects {
  }
 }
 ```
-注意：不要把JitPack的依赖放在buildscript里面，否则会出现无法解析远程依赖的错误。
+注意：不要把JitPack的仓库地址放在buildscript里面，否则会出现无法解析远程依赖的错误。
 
 然后，再你需要使用的Module中的build.gradle添加以下依赖：
 ```
