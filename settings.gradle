@@ -1,1 +1,1 @@
-include ':gesturerefresh'
+include ':gesturerefresh','app'
