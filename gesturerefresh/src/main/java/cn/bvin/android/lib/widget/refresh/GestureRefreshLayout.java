@@ -286,7 +286,9 @@ public class GestureRefreshLayout extends ViewGroup {
      * @param targetAlpha
      */
     private void setColorViewAlpha(int targetAlpha) {
-        mRefreshView.getBackground().setAlpha(targetAlpha);
+        if (mRefreshView != null && mRefreshView.getBackground() != null) {
+            mRefreshView.getBackground().setAlpha(targetAlpha);
+        }
     }
 
     /**
