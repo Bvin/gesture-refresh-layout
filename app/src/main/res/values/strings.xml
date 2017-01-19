@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App</string>
+    <string name="app_name">GestureRefreshDemo</string>
     <string name="text">
         Pull-to-refresh
         \n\nFrom Wikipedia, the free encyclopedia\n\n
