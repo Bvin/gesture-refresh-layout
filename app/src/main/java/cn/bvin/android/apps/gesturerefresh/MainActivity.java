@@ -27,12 +27,18 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
 
             @Override
             public void onDragging(float draggedDistance, float releaseDistance) {
-                refreshText.setText("下拉刷新...");
+                if (draggedDistance>releaseDistance){
+                    refreshText.setText("释放更新");
+                }else {
+                    refreshText.setText("下拉刷新...");
+                }
+                // 超过定义的同步距离就意味着可以释放刷新了
+
             }
 
             @Override
             public void onFinishDrag(float endY) {
-                refreshText.setText("释放更新");
+                refreshText.setText("正在更新...");
             }
         });
         mGestureRefreshLayout.setOnRefreshListener(this);
