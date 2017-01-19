@@ -2,20 +2,24 @@ package cn.bvin.android.apps.gesturerefresh;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import cn.bvin.android.lib.widget.refresh.GestureRefreshLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GestureRefreshLayout.OnRefreshListener {
+
+    private GestureRefreshLayout mGestureRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final GestureRefreshLayout gestureRefreshLayout = (GestureRefreshLayout) findViewById(R.id.gesture_refresh_layout);
+        mGestureRefreshLayout = (GestureRefreshLayout) findViewById(R.id.gesture_refresh_layout);
         final TextView refreshText = (TextView) findViewById(R.id.refresh_text);
-        gestureRefreshLayout.setTranslateContent(true);//是否移动ContentView
-        gestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
+        mGestureRefreshLayout.setTranslateContent(true);//是否移动ContentView
+        mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
             @Override
             public void onStartDrag(float startY) {
                 refreshText.setText("下拉刷新");
@@ -31,27 +35,43 @@ public class MainActivity extends AppCompatActivity {
                 refreshText.setText("释放更新");
             }
         });
-        gestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshListener() {
+        mGestureRefreshLayout.setOnRefreshListener(this);
+    }
+
+    @Override
+    public void onRefresh() {
+        new Thread(new Runnable() {
             @Override
-            public void onRefresh() {
-                new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(2500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Thread.sleep(2500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                gestureRefreshLayout.setRefreshing(false);
-                            }
-                        });
+                        mGestureRefreshLayout.setRefreshing(false);
                     }
-                }).start();
-
+                });
             }
-        });
+        }).start();
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.refresh) {
+            mGestureRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
