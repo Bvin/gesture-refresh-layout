@@ -8,9 +8,22 @@
     tools:context="cn.bvin.android.apps.gesturerefresh.MainActivity">
 
     <cn.bvin.android.lib.widget.refresh.GestureRefreshLayout
+        android:id="@+id/gesture_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/text"/>
+        </ScrollView>
+
+
+        <!--应提供layout_gravity-->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

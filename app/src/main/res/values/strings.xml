@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">App</string>
+    <string name="text">
+        Pull-to-refresh
+        \n\nFrom Wikipedia, the free encyclopedia\n\n
+        Pull-to-refresh is a touchscreen gesture that consists of touching the scree
+        n of a computing device with a finger or pressing a button on a pointing device, dragging th
+        e screen downward with the finger or pointing device, and then releasing it, as a signal to
+        the application to refresh the contents of the screen. The pull-to-refresh gesture first app
+        eared in the Tweetie mobile application developed by Loren Brichter. Brichter developed Twee
+        tie, an iOS application for Twitter, as a personal project in 2008 after he quit his job at
+        Apple Inc. in 2007.
+        \n\nMotivation\n\n
+        While Brichter was initially developing Tweetie, he wanted to add a refresh function to the application. Regarding other mobile applications of that time, he said “They all had to find a spot and just cram a refresh button somewhere. Usually in one of the corners in a toolbar bordering a scrollable list. That was the most valuable real estate for navigation and action UI, so using it up for something as mundane as a refresh button just seemed wasteful.”[1] Brichter thus decided to create a different method of refreshing such that the valuable corner space could be utilized for something else. Although he initially planned to create a refresh mechanism that follows Apple’s platform conventions, Brichter’s work with pull-to-refresh resulted in a novel interaction new to Apple’s platform at the time.[2]
+    </string>
 </resources>
