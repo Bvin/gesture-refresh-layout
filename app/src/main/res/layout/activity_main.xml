@@ -25,9 +25,10 @@
 
         <!--应提供layout_gravity-->
         <TextView
+            android:background="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"/>
+            android:text="I am Refresh View"/>
 
     </cn.bvin.android.lib.widget.refresh.GestureRefreshLayout>
 
