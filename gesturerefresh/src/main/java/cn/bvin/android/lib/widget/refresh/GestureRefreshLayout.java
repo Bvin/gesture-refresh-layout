@@ -666,12 +666,12 @@ public class GestureRefreshLayout extends ViewGroup {
         }
 
         float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
-        int offset = targetY - mCurrentTargetOffsetTop;
+        int offset = targetY - mCurrentTargetOffsetTop;//这两个值相等?
         Log.d(TAG, "startDrag: "+mCurrentTargetOffsetTop+","+offset);
         setTargetOffsetTopAndBottom(offset, true /* requires update */);
 
-        if (mGestureChangeListener != null) {
-            //mGestureChangeListener.onDragging(offset, mTotalDragDistance);
+        if (mGestureChangeListener != null) {//临时拿overscrollTop去作为draggedDistance
+            mGestureChangeListener.onDragging(overscrollTop, mTotalDragDistance);
         }
     }
 
