@@ -76,8 +76,8 @@ dependencies {
     compile 'com.github.bvin:gesture-refresh-layout:0.1.1'
 }
 ```
-如果需要最新的功能，可以依赖以d结尾的在dev分支上发布的Tag，"com.github.bvin:gesture-refresh-layout:0.
-1.4d"，如稳定版是不以字母d结尾的。
+如果需要最新的功能，可以依赖以d结尾的在dev分支上发布的Tag，如 "com.github.bvin:gesture-refresh-layout:0.
+1.4d"，稳定版是不以字母d结尾的。
 
 如果你的module中已经有support-v4依赖，应该去除内部的module，如下：
 ```
