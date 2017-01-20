@@ -22,8 +22,19 @@ Then, add the following dependency to your module's build.gradle file:
 ```
 dependencies {
     ...
-    compile 'com.google.android:flexbox:0.2.5'
+    compile 'com.github.bvin:gesture-refresh-layout:0.1.1'
 }
+```
+If you want to get the latest feature, you can find that release the end with letter "d"(the code on
+ dev branch), example "com.github.bvin:gesture-refresh-layout:0.1.4d".The stable version is no end w
+ ith letter "d".
+ 
+If in your module already has support-v4 dependency, you should exclude the inner support module, li
+ke this:
+```
+compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
 ```
 
 ## Usage
@@ -62,8 +73,17 @@ allprojects {
 ```
 dependencies {
     ...
-    compile 'com.google.android:flexbox:0.2.5'
+    compile 'com.github.bvin:gesture-refresh-layout:0.1.1'
 }
+```
+如果需要最新的功能，可以依赖以d结尾的在dev分支上发布的Tag，"com.github.bvin:gesture-refresh-layout:0.
+1.4d"，如稳定版是不以字母d结尾的。
+
+如果你的module中已经有support-v4依赖，应该去除内部的module，如下：
+```
+compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
 ```
 
 ## 用法
