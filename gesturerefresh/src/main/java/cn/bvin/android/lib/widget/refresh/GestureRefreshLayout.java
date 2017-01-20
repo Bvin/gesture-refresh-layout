@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -803,12 +802,12 @@ public class GestureRefreshLayout extends ViewGroup {
     }
 
     /**
-     * Classes that wish to override {@link SwipeRefreshLayout#canChildScrollUp()} method
+     * Classes that wish to override {@link #canChildScrollUp()} method
      * behavior should implement this interface.
      */
     public interface OnChildScrollUpCallback {
         /**
-         * Callback that will be called when {@link SwipeRefreshLayout#canChildScrollUp()} method
+         * Callback that will be called when {@link #canChildScrollUp()} method
          * is called to allow the implementer to override its behavior.
          *
          * @param parent SwipeRefreshLayout that this callback is overriding.
