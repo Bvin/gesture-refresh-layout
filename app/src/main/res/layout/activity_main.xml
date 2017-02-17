@@ -22,16 +22,21 @@
                 android:text="@string/text"/>
         </ScrollView>
 
-
         <!--应提供layout_gravity-->
         <TextView
             android:id="@+id/refresh_text"
-            android:background="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
             android:text="I am Refresh View"/>
 
-    </cn.bvin.android.lib.widget.refresh.GestureRefreshLayout>
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_above="@+id/gesture_refresh_layout"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
+    </cn.bvin.android.lib.widget.refresh.GestureRefreshLayout>
 
 </LinearLayout>
