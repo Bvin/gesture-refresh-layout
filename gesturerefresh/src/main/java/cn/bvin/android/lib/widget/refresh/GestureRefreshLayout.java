@@ -391,6 +391,15 @@ public class GestureRefreshLayout extends ViewGroup {
         }
     }
 
+    /**
+     * Set the distance to trigger a sync in dips
+     *
+     * @param distance
+     */
+    public void setDistanceToTriggerSync(int distance) {
+        mTotalDragDistance = distance;
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         Log.d(TAG, "onLayout: ");
