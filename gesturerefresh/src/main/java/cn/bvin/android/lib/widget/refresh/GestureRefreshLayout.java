@@ -90,6 +90,8 @@ public class GestureRefreshLayout extends ViewGroup {
     // 是否移动Content在下拉的过程中
     private boolean mTranslateContent;
 
+    private OnLayoutTranslateCallback mOnLayoutTranslateCallback;
+
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
         public void onAnimationStart(Animation animation) {
@@ -225,6 +227,10 @@ public class GestureRefreshLayout extends ViewGroup {
         mListener = listener;
     }
 
+    public void setOnLayoutTranslateCallback(OnLayoutTranslateCallback onLayoutTranslateCallback) {
+        mOnLayoutTranslateCallback = onLayoutTranslateCallback;
+    }
+
     /**
      * Pre API 11, alpha is used to make the progress circle appear instead of scale.
      */
@@ -331,9 +337,9 @@ public class GestureRefreshLayout extends ViewGroup {
 
     private void ensureTarget() {
         if (mTarget == null) {
-            if (getChildCount() > 2) {
+            /*if (getChildCount() > 2) {
                 throw new IllegalStateException("GestureRefreshLayout can host only 2 direct child");
-            } else {
+            } else */{
                 mTarget = getChildAt(0);
                 mRefreshView = getChildAt(1);
             }
@@ -360,6 +366,15 @@ public class GestureRefreshLayout extends ViewGroup {
             return;
         }
         measureChild(mRefreshView, widthMeasureSpec, heightMeasureSpec);
+
+        // measure other child view.
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child != mTarget && child != mRefreshView)
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
+        }
+
         if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
             mOriginalOffsetCalculated = true;
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mRefreshView.getMeasuredHeight();
@@ -406,6 +421,28 @@ public class GestureRefreshLayout extends ViewGroup {
 
         mRefreshView.layout(childLeft, mCurrentTargetOffsetTop,
                 childLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
+
+        // layout other child view
+        final int count = getChildCount();
+        final int parentLeft = getPaddingLeft();
+        final int parentRight = r - l - getPaddingLeft();
+
+        final int parentTop = getPaddingTop();
+        final int parentBottom = b - t - getPaddingBottom();
+        for (int i = 0; i < count; i++) {
+            final View view = getChildAt(i);
+            if (view.getVisibility() != GONE && view != mTarget && view != mRefreshView
+                    &&mCurrentTargetOffsetTop==mOriginalOffsetTop) {
+                //margin/gravity处理
+                view.layout(parentLeft, -view.getMeasuredHeight(), parentLeft + view.getMeasuredWidth(), 0);
+            }
+        }
+
+        if (mOnLayoutTranslateCallback != null) {
+
+            mOnLayoutTranslateCallback.onLayoutTranslate(mCurrentTargetOffsetTop
+            );
+        }
     }
 
     public void setChildScrollUpCallback(OnChildScrollUpCallback childScrollUpCallback) {
@@ -822,6 +859,10 @@ public class GestureRefreshLayout extends ViewGroup {
         void onStartDrag(float startY);
         void onDragging(float draggedDistance, float releaseDistance);
         void onFinishDrag(float endY);
+    }
+
+    public interface OnLayoutTranslateCallback {
+        void onLayoutTranslate(int movementTop);
     }
 
     /**
