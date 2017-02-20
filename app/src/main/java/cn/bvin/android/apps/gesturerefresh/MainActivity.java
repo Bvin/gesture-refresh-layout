@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
         mGestureRefreshLayout.setTranslateContent(false);//是否移动ContentView
-        mGestureRefreshLayout.setDistanceToTriggerSync(50);
+        //mGestureRefreshLayout.setDistanceToTriggerSync((int) (100*getResources().getDisplayMetrics().density));
         mGestureRefreshLayout.setOnLayoutTranslateCallback(new GestureRefreshLayout.OnLayoutTranslateCallback() {
             @Override
             public void onLayoutTranslate(int movementTop) {
