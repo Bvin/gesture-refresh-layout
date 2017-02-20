@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,6 +34,8 @@ public class GestureRefreshLayout extends ViewGroup {
     private static final int[] LAYOUT_ATTRS = new int[]{android.R.attr.enabled};
     private static final int INVALID_POINTER = -1;
     private static final float DRAG_RATE = .5f;
+    private static final int DEFAULT_REFRESH_DISTANCE = 64;
+    private static final int DEFAULT_REFRESH_ORIGINAL_POSITION = -40;
 
     private View mTarget;
     private OnRefreshListener mListener;
@@ -134,10 +137,12 @@ public class GestureRefreshLayout extends ViewGroup {
         setEnabled(a.getBoolean(0, true));
         a.recycle();
 
-        // the absolute offset has to take into account that the circle starts at an offset
-        mTotalDragDistance = mSpinnerOffsetEnd = 64;
+        final DisplayMetrics metrics = getResources().getDisplayMetrics();
 
-        mOriginalOffsetTop = mCurrentTargetOffsetTop =  -40;// refresh height
+        // the absolute offset has to take into account that the circle starts at an offset
+        mTotalDragDistance = mSpinnerOffsetEnd = (int) (DEFAULT_REFRESH_DISTANCE * metrics.density);
+
+        mOriginalOffsetTop = mCurrentTargetOffsetTop = (int) (DEFAULT_REFRESH_ORIGINAL_POSITION * metrics.density);// refresh height
 
     }
 
@@ -379,7 +384,10 @@ public class GestureRefreshLayout extends ViewGroup {
             mOriginalOffsetCalculated = true;
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mRefreshView.getMeasuredHeight();
             // 比RefreshView多出64px
-            mTotalDragDistance = mSpinnerOffsetEnd = (int) (-mOriginalOffsetTop + mTotalDragDistance);
+            if (mTotalDragDistance == (int) (DEFAULT_REFRESH_DISTANCE * getResources().getDisplayMetrics().density)) {
+                // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
+                mTotalDragDistance = mSpinnerOffsetEnd = (int) (-mOriginalOffsetTop + mTotalDragDistance);
+            }
         }
         mRefreshViewIndex = -1;
         // Get the index of the circleview.
