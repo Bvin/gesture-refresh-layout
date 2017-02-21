@@ -46,52 +46,52 @@ compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
 ```
 java example code:
 ```java
-    mGestureRefreshLayout = (GestureRefreshLayout) findViewById(R.id.gesture_refresh_layout);
-    mGestureRefreshLayout.setEnabled(false);//false disable gesture refrehsh,else enable
-    mGestureRefreshLayout.setTranslateContent(false);//false to pin refreshview,other side move contentview
-    mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        // do something.
-                        mGestureRefreshLayout.setRefreshing(false);
-                        // after close refresh.
-                    }
-                });
-     mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
-                     @Override
-                     public void onStartDrag(float startY) {
-                         mRefreshText.setText("pull to refresh");
-                     }
-         
-                     @Override
-                     public void onDragging(float draggedDistance, float releaseDistance) {
-                         //rotate angle: 360*draggedDistance/releaseDistance
-                         mProgressBar.setProgress((int) (draggedDistance/releaseDistance*100));
-                         Log.d(TAG, "onDragging: "+draggedDistance+","+releaseDistance);
-                         if (draggedDistance>releaseDistance){
-                             mRefreshText.setText("release to update");
-                         }else {
-                             mRefreshText.setText("refreshing...");
-                         }
-         
-                     }
-         
-                     @Override
-                     public void onFinishDrag(float endY) {
-                         mRefreshText.setText("update...");
-                     }
-                 });   
+mGestureRefreshLayout = (GestureRefreshLayout) findViewById(R.id.gesture_refresh_layout);
+mGestureRefreshLayout.setEnabled(false);//false disable gesture refrehsh,else enable
+mGestureRefreshLayout.setTranslateContent(false);//false to pin refreshview,other side move contentview
+mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshListener() {
+    @Override
+    public void onRefresh() {
+        // do something.
+        mGestureRefreshLayout.setRefreshing(false);
+        // after close refresh.
+    }
+});
+ mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
+     @Override
+     public void onStartDrag(float startY) {
+         mRefreshText.setText("pull to refresh");
+     }
+
+     @Override
+     public void onDragging(float draggedDistance, float releaseDistance) {
+         //rotate angle: 360*draggedDistance/releaseDistance
+         mProgressBar.setProgress((int) (draggedDistance/releaseDistance*100));
+         Log.d(TAG, "onDragging: "+draggedDistance+","+releaseDistance);
+         if (draggedDistance>releaseDistance){
+             mRefreshText.setText("release to update");
+         }else {
+             mRefreshText.setText("refreshing...");
+         }
+
+     }
+
+     @Override
+     public void onFinishDrag(float endY) {
+         mRefreshText.setText("update...");
+     }
+ });   
                          
 ```
 trigger refresh any where:
 ```java
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.refresh) {
-            mGestureRefreshLayout.setRefreshing(true);
-        }
-        return super.onOptionsItemSelected(item);
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.refresh) {
+        mGestureRefreshLayout.setRefreshing(true);
     }
+    return super.onOptionsItemSelected(item);
+}
 ```
 
 ## Swipe Gesture
@@ -159,27 +159,27 @@ ChildView外的GRL区域起作用。
 成后应通过mGestureRefreshLayout.setRefreshing(false)方法来通知操作完毕以让视图回到初始位置。注意，一
 定要在UI线程调用mGestureRefreshLayout.setRefreshing(false)方法。
 ```java
-    mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    // do something.
-                    mGestureRefreshLayout.setRefreshing(false);
-                    // after close refresh.
-                }
-            });
+mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshListener() {
+    @Override
+    public void onRefresh() {
+        // do something.
+        mGestureRefreshLayout.setRefreshing(false);
+        // after close refresh.
+    }
+});
 ```
 
 GestureRefreshLayout支持手势刷新，也支持主动触发刷新。例如可以在选项菜单添加刷新按钮或者在一进入页面
 自动执行刷新操作。这一特性很多情况是非常受用的，比如点击顶部刷新呢，或者用于电视，电视一般是没有触屏
 的，这是主动刷新却是很实用的功能。
 ```java
-    @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getItemId() == R.id.refresh) {
-                mGestureRefreshLayout.setRefreshing(true);
-            }
-            return super.onOptionsItemSelected(item);
-        }
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.refresh) {
+        mGestureRefreshLayout.setRefreshing(true);
+    }
+    return super.onOptionsItemSelected(item);
+}
 ```
 同时如果你不想手势滑动触发刷新，只需要调用setEnable(false)方法就可以禁用。
 ```java
@@ -195,31 +195,31 @@ GestureRefreshLayout的强大之处是可以非常个性化得定制刷新效果
 可以根据不同状态下的不同参数值制定不同效果，如简单的刷新文字可以根据状态改变修改，其他动画可以根据
 onDragging的两个参数比例值来完成旋转或者进度动画。
 ```java
-    mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
-                @Override
-                public void onStartDrag(float startY) {
-                    mRefreshText.setText("下拉刷新");
-                }
-    
-                @Override
-                public void onDragging(float draggedDistance, float releaseDistance) {
-                    //rotate angle: 360*draggedDistance/releaseDistance
-                    mProgressBar.setProgress((int) (draggedDistance/releaseDistance*100));
-                    Log.d(TAG, "onDragging: "+draggedDistance+","+releaseDistance);
-                    if (draggedDistance>releaseDistance){
-                        mRefreshText.setText("释放更新");
-                    }else {
-                        mRefreshText.setText("下拉刷新...");
-                    }
-                    // 超过定义的同步距离就意味着可以释放刷新了
-    
-                }
-    
-                @Override
-                public void onFinishDrag(float endY) {
-                    mRefreshText.setText("正在更新...");
-                }
-            });
+mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
+    @Override
+    public void onStartDrag(float startY) {
+        mRefreshText.setText("下拉刷新");
+    }
+
+    @Override
+    public void onDragging(float draggedDistance, float releaseDistance) {
+        //rotate angle: 360*draggedDistance/releaseDistance
+        mProgressBar.setProgress((int) (draggedDistance/releaseDistance*100));
+        Log.d(TAG, "onDragging: "+draggedDistance+","+releaseDistance);
+        if (draggedDistance>releaseDistance){
+            mRefreshText.setText("释放更新");
+        }else {
+            mRefreshText.setText("下拉刷新...");
+        }
+        // 超过定义的同步距离就意味着可以释放刷新了
+
+    }
+
+    @Override
+    public void onFinishDrag(float endY) {
+        mRefreshText.setText("正在更新...");
+    }
+});
 ```
 
 _为了保持结构简洁、用法简单，GestureRefreshLayout只提供基础手势滑动动画，其他任何表现刷新的动画和提示
