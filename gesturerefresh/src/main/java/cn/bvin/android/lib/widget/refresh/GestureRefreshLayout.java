@@ -266,7 +266,7 @@ public class GestureRefreshLayout extends ViewGroup {
                     true *//* requires update *//*);
             mNotify = false;
             startScaleUpAnimation(mRefreshListener);*/
-            // TODO: 2017/2/21 强制刷新走手势刷新的动作
+            mNotify = true;
             animateStartToEndPosition(mRefreshListener);
         } else {
             setRefreshing(refreshing, false /* notify */);
@@ -853,7 +853,6 @@ public class GestureRefreshLayout extends ViewGroup {
         }
         setTargetOffsetTopAndBottom((int) ((endTarget - mCurrentTargetOffsetTop) * interpolatedTime),
                 true /* requires update */);
-        mNotify = false;
     }
 
     private final Animation mAnimateToCorrectPosition = new Animation() {
