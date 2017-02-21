@@ -439,8 +439,10 @@ public class GestureRefreshLayout extends ViewGroup {
             return;
         }
 
-        mRefreshView.layout(childLeft, mCurrentTargetOffsetTop,
-                childLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
+        int refreshViewLeft = childLeft + (childWidth - mRefreshView.getMeasuredWidth()) / 2;
+
+        mRefreshView.layout(refreshViewLeft, mCurrentTargetOffsetTop,
+                refreshViewLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
 
         // layout other child view
         final int count = getChildCount();
