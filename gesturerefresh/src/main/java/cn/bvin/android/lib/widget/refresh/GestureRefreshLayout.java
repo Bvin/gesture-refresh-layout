@@ -832,7 +832,7 @@ public class GestureRefreshLayout extends ViewGroup {
     private void animateStartToEndPosition(Animation.AnimationListener listener){
         mRefreshView.setVisibility(View.VISIBLE);
         mAnimateToEndPosition.reset();
-        mAnimateToEndPosition.setDuration(ANIMATE_TO_START_DURATION);
+        mAnimateToEndPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
         mAnimateToEndPosition.setInterpolator(mDecelerateInterpolator);
         mAnimateToEndPosition.setAnimationListener(listener);
         mRefreshView.clearAnimation();
