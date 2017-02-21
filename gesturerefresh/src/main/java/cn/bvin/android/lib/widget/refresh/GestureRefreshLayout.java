@@ -266,6 +266,7 @@ public class GestureRefreshLayout extends ViewGroup {
                     true /* requires update */);
             mNotify = false;
             startScaleUpAnimation(mRefreshListener);
+            // TODO: 2017/2/21 强制刷新走手势刷新的动作
         } else {
             setRefreshing(refreshing, false /* notify */);
         }
@@ -452,7 +453,7 @@ public class GestureRefreshLayout extends ViewGroup {
             final View view = getChildAt(i);
             if (view.getVisibility() != GONE && view != mTarget && view != mRefreshView
                     &&mCurrentTargetOffsetTop==mOriginalOffsetTop) {
-                //margin/gravity处理
+                // TODO: 2017/2/21 子控件对margin和gravity等的处理
                 view.layout(parentLeft, -view.getMeasuredHeight(), parentLeft + view.getMeasuredWidth(), 0);
             }
         }
