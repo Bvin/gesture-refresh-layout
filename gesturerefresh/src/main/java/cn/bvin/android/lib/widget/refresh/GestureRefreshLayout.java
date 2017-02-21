@@ -386,10 +386,16 @@ public class GestureRefreshLayout extends ViewGroup {
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mRefreshView.getMeasuredHeight();
             int defaultRefreshDistance = (int) (DEFAULT_REFRESH_DISTANCE
                     * getResources().getDisplayMetrics().density);
+            int maxRefreshDistance = (int) (defaultRefreshDistance * 2.5);
             if (mTotalDragDistance == defaultRefreshDistance
                     && mRefreshView.getMeasuredHeight() > defaultRefreshDistance) {
-                // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
-                mTotalDragDistance = mSpinnerOffsetEnd = mRefreshView.getMeasuredHeight();
+                if (mRefreshView.getMeasuredHeight() > maxRefreshDistance) {
+                    // 超过最大值就取最大值
+                    mTotalDragDistance = mSpinnerOffsetEnd = maxRefreshDistance;
+                } else {
+                    // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
+                    mTotalDragDistance = mSpinnerOffsetEnd = mRefreshView.getMeasuredHeight();
+                }
             }
         }
         mRefreshViewIndex = -1;
