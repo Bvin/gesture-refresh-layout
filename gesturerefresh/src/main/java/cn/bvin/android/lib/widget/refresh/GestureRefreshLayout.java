@@ -253,7 +253,7 @@ public class GestureRefreshLayout extends ViewGroup {
         if (refreshing && mRefreshing != refreshing) {
             // scale and show
             mRefreshing = refreshing;
-            int endTarget = 0;
+            /*int endTarget = 0;
             if (!mUsingCustomStart) {
                 endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
             } else {
@@ -263,10 +263,11 @@ public class GestureRefreshLayout extends ViewGroup {
             // 没有使用自定义Start位置，mOriginalOffsetTop和mCurrentTargetOffsetTop相抵消
             // 就是mSpinnerOffsetEnd的位置。
             setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop,
-                    true /* requires update */);
+                    true *//* requires update *//*);
             mNotify = false;
-            startScaleUpAnimation(mRefreshListener);
+            startScaleUpAnimation(mRefreshListener);*/
             // TODO: 2017/2/21 强制刷新走手势刷新的动作
+            animateStartToEndPosition(mRefreshListener);
         } else {
             setRefreshing(refreshing, false /* notify */);
         }
@@ -323,7 +324,29 @@ public class GestureRefreshLayout extends ViewGroup {
             if (mRefreshing) {
                 animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, mRefreshListener);
             } else {
-                startScaleDownAnimation(mRefreshListener);
+                Animation.AnimationListener listener = null;
+                if (!mScale) {
+                    listener = new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (!mScale) {
+                                startScaleDownAnimation(null);
+                            }
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+
+                    };
+                }
+                animateOffsetToStartPosition(mCurrentTargetOffsetTop, null);
+                //startScaleDownAnimation(mRefreshListener);
             }
         }
     }
@@ -806,6 +829,33 @@ public class GestureRefreshLayout extends ViewGroup {
         setTargetOffsetTopAndBottom(offset, false /* requires update */);
     }
 
+    private void animateStartToEndPosition(Animation.AnimationListener listener){
+        mRefreshView.setVisibility(View.VISIBLE);
+        mAnimateToEndPosition.reset();
+        mAnimateToEndPosition.setDuration(ANIMATE_TO_START_DURATION);
+        mAnimateToEndPosition.setInterpolator(mDecelerateInterpolator);
+        mAnimateToEndPosition.setAnimationListener(listener);
+        mRefreshView.clearAnimation();
+        mRefreshView.startAnimation(mAnimateToEndPosition);
+    }
+
+    private void moveToEnd(float interpolatedTime) {
+        /*int targetTop = 0;
+        targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
+        int offset = targetTop - mRefreshView.getTop();
+        setTargetOffsetTopAndBottom(offset, false *//* requires update *//*);*/
+
+        int endTarget = 0;
+        if (!mUsingCustomStart) {
+            endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
+        } else {
+            endTarget =  mSpinnerOffsetEnd;
+        }
+        setTargetOffsetTopAndBottom((int) ((endTarget - mCurrentTargetOffsetTop) * interpolatedTime),
+                true /* requires update */);
+        mNotify = false;
+    }
+
     private final Animation mAnimateToCorrectPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
@@ -827,6 +877,13 @@ public class GestureRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             moveToStart(interpolatedTime);
+        }
+    };
+
+    private final Animation mAnimateToEndPosition = new Animation() {
+        @Override
+        public void applyTransformation(float interpolatedTime, Transformation t) {
+            moveToEnd(interpolatedTime);
         }
     };
 
