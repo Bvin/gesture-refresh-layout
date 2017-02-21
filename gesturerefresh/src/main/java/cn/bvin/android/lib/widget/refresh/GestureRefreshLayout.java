@@ -163,6 +163,7 @@ public class GestureRefreshLayout extends ViewGroup {
     }
 
     void reset() {
+        ensureTarget();
         mRefreshView.clearAnimation();
         mRefreshView.setVisibility(View.GONE);
         setColorViewAlpha(MAX_ALPHA);
