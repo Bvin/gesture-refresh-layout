@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.refresh) {
             mGestureRefreshLayout.setRefreshing(true);
-            //onRefresh();
         }
         return super.onOptionsItemSelected(item);
     }
