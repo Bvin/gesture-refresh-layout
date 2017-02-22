@@ -702,9 +702,9 @@ public class GestureRefreshLayout extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
-                if (mGestureChangeListener != null) {
+                /*if (mGestureChangeListener != null) {
                     mGestureChangeListener.onFinishDrag(y);
-                }
+                }*/
                 endDrag(overscrollTop);
                 mActivePointerId = INVALID_POINTER;
                 return false;
@@ -767,6 +767,9 @@ public class GestureRefreshLayout extends ViewGroup {
         Log.d(TAG, "endDrag: "+overscrollTop+","+mTotalDragDistance);
         if (overscrollTop > mTotalDragDistance){
             setRefreshing(true, true /* notify */);
+            if (mGestureChangeListener != null) {
+                mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
+            }
         }else {
             // cancel refresh
             mRefreshing = false;
@@ -792,9 +795,6 @@ public class GestureRefreshLayout extends ViewGroup {
                 };
             }
             animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);// 回程
-        }
-        if (mGestureChangeListener != null) {
-            mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
         }
     }
 
