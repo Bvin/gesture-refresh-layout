@@ -163,6 +163,7 @@ public class GestureRefreshLayout extends ViewGroup {
     }
 
     void reset() {
+        ensureTarget();
         mRefreshView.clearAnimation();
         mRefreshView.setVisibility(View.GONE);
         setColorViewAlpha(MAX_ALPHA);
@@ -253,7 +254,7 @@ public class GestureRefreshLayout extends ViewGroup {
         if (refreshing && mRefreshing != refreshing) {
             // scale and show
             mRefreshing = refreshing;
-            int endTarget = 0;
+            /*int endTarget = 0;
             if (!mUsingCustomStart) {
                 endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
             } else {
@@ -263,9 +264,11 @@ public class GestureRefreshLayout extends ViewGroup {
             // 没有使用自定义Start位置，mOriginalOffsetTop和mCurrentTargetOffsetTop相抵消
             // 就是mSpinnerOffsetEnd的位置。
             setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop,
-                    true /* requires update */);
+                    true *//* requires update *//*);
             mNotify = false;
-            startScaleUpAnimation(mRefreshListener);
+            startScaleUpAnimation(mRefreshListener);*/
+            mNotify = true;
+            animateStartToEndPosition(mRefreshListener);
         } else {
             setRefreshing(refreshing, false /* notify */);
         }
@@ -322,7 +325,29 @@ public class GestureRefreshLayout extends ViewGroup {
             if (mRefreshing) {
                 animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, mRefreshListener);
             } else {
-                startScaleDownAnimation(mRefreshListener);
+                Animation.AnimationListener listener = null;
+                if (!mScale) {
+                    listener = new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (!mScale) {
+                                startScaleDownAnimation(null);
+                            }
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+
+                    };
+                }
+                animateOffsetToStartPosition(mCurrentTargetOffsetTop, null);
+                //startScaleDownAnimation(mRefreshListener);
             }
         }
     }
@@ -383,10 +408,18 @@ public class GestureRefreshLayout extends ViewGroup {
         if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
             mOriginalOffsetCalculated = true;
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mRefreshView.getMeasuredHeight();
-            // 比RefreshView多出64px
-            if (mTotalDragDistance == (int) (DEFAULT_REFRESH_DISTANCE * getResources().getDisplayMetrics().density)) {
-                // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
-                mTotalDragDistance = mSpinnerOffsetEnd = (int) (-mOriginalOffsetTop + mTotalDragDistance);
+            int defaultRefreshDistance = (int) (DEFAULT_REFRESH_DISTANCE
+                    * getResources().getDisplayMetrics().density);
+            int maxRefreshDistance = (int) (defaultRefreshDistance * 2.5);
+            if (mTotalDragDistance == defaultRefreshDistance
+                    && mRefreshView.getMeasuredHeight() > defaultRefreshDistance) {
+                if (mRefreshView.getMeasuredHeight() > maxRefreshDistance) {
+                    // 超过最大值就取最大值
+                    mTotalDragDistance = mSpinnerOffsetEnd = maxRefreshDistance;
+                } else {
+                    // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
+                    mTotalDragDistance = mSpinnerOffsetEnd = mRefreshView.getMeasuredHeight();
+                }
             }
         }
         mRefreshViewIndex = -1;
@@ -436,8 +469,10 @@ public class GestureRefreshLayout extends ViewGroup {
             return;
         }
 
-        mRefreshView.layout(childLeft, mCurrentTargetOffsetTop,
-                childLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
+        int refreshViewLeft = childLeft + (childWidth - mRefreshView.getMeasuredWidth()) / 2;
+
+        mRefreshView.layout(refreshViewLeft, mCurrentTargetOffsetTop,
+                refreshViewLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
 
         // layout other child view
         final int count = getChildCount();
@@ -450,7 +485,7 @@ public class GestureRefreshLayout extends ViewGroup {
             final View view = getChildAt(i);
             if (view.getVisibility() != GONE && view != mTarget && view != mRefreshView
                     &&mCurrentTargetOffsetTop==mOriginalOffsetTop) {
-                //margin/gravity处理
+                // TODO: 2017/2/21 子控件对margin和gravity等的处理
                 view.layout(parentLeft, -view.getMeasuredHeight(), parentLeft + view.getMeasuredWidth(), 0);
             }
         }
@@ -667,9 +702,9 @@ public class GestureRefreshLayout extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
-                if (mGestureChangeListener != null) {
+                /*if (mGestureChangeListener != null) {
                     mGestureChangeListener.onFinishDrag(y);
-                }
+                }*/
                 endDrag(overscrollTop);
                 mActivePointerId = INVALID_POINTER;
                 return false;
@@ -732,6 +767,9 @@ public class GestureRefreshLayout extends ViewGroup {
         Log.d(TAG, "endDrag: "+overscrollTop+","+mTotalDragDistance);
         if (overscrollTop > mTotalDragDistance){
             setRefreshing(true, true /* notify */);
+            if (mGestureChangeListener != null) {
+                mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
+            }
         }else {
             // cancel refresh
             mRefreshing = false;
@@ -757,9 +795,6 @@ public class GestureRefreshLayout extends ViewGroup {
                 };
             }
             animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);// 回程
-        }
-        if (mGestureChangeListener != null) {
-            mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
         }
     }
 
@@ -795,6 +830,32 @@ public class GestureRefreshLayout extends ViewGroup {
         setTargetOffsetTopAndBottom(offset, false /* requires update */);
     }
 
+    private void animateStartToEndPosition(Animation.AnimationListener listener){
+        mRefreshView.setVisibility(View.VISIBLE);
+        mAnimateToEndPosition.reset();
+        mAnimateToEndPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
+        mAnimateToEndPosition.setInterpolator(mDecelerateInterpolator);
+        mAnimateToEndPosition.setAnimationListener(listener);
+        mRefreshView.clearAnimation();
+        mRefreshView.startAnimation(mAnimateToEndPosition);
+    }
+
+    private void moveToEnd(float interpolatedTime) {
+        /*int targetTop = 0;
+        targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
+        int offset = targetTop - mRefreshView.getTop();
+        setTargetOffsetTopAndBottom(offset, false *//* requires update *//*);*/
+
+        int endTarget = 0;
+        if (!mUsingCustomStart) {
+            endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
+        } else {
+            endTarget =  mSpinnerOffsetEnd;
+        }
+        setTargetOffsetTopAndBottom((int) ((endTarget - mCurrentTargetOffsetTop) * interpolatedTime),
+                true /* requires update */);
+    }
+
     private final Animation mAnimateToCorrectPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
@@ -816,6 +877,13 @@ public class GestureRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             moveToStart(interpolatedTime);
+        }
+    };
+
+    private final Animation mAnimateToEndPosition = new Animation() {
+        @Override
+        public void applyTransformation(float interpolatedTime, Transformation t) {
+            moveToEnd(interpolatedTime);
         }
     };
 

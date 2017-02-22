@@ -26,8 +26,7 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
         mRefreshText = (TextView) findViewById(R.id.refresh_text);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
-        mGestureRefreshLayout.setTranslateContent(false);//是否移动ContentView
-        //mGestureRefreshLayout.setDistanceToTriggerSync((int) (100*getResources().getDisplayMetrics().density));
+        mGestureRefreshLayout.setTranslateContent(true);//是否移动ContentView
         mGestureRefreshLayout.setOnLayoutTranslateCallback(new GestureRefreshLayout.OnLayoutTranslateCallback() {
             @Override
             public void onLayoutTranslate(int movementTop) {
@@ -37,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
                 }
             }
         });
+        mGestureRefreshLayout.setEnabled(false);
         mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
             @Override
             public void onStartDrag(float startY) {
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
 
     @Override
     public void onRefresh() {
+        Log.d(TAG, "onRefresh: ");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements GestureRefreshLay
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.refresh) {
             mGestureRefreshLayout.setRefreshing(true);
-            onRefresh();
         }
         return super.onOptionsItemSelected(item);
     }
