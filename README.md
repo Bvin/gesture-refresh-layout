@@ -144,16 +144,6 @@ compile ('com.github.bvin:gesture-refresh-layout:0.1.7') {
 ## 用法
 通常可以在GestureRefreshLayout布局里面添加子视图来实现刷新功能，第一个应为内容视图，第二个应为刷新视图。
 
-原生SwipeRefreshLayout的ChildView的宽高会强制match_parent，而我们的GestureRefreshLayout可以支持Child
-View为wrap_content。宽度不足match_parent的RefreshView将会处于水平居中位置，未来可提供gravity和margin
-的支持。
-
-至于为何SRL（即SwipeRefreshLayout，以下通称SRL）会这样做，我猜测是因为SRL把触摸事件
-从ChildView拦截到SRL自身去做事件处理，它原生是可以从ChildView的区域滑出到SRL自身的区域，Touche事件可
-以无缝衔接，虽然...但是SRL和ChildView是没有间隙的，是严丝合缝的。而GRL（即GestureRefreshLayout，以下通
-称GRL）的ContentView是可以支持wrap_content的，就算你的ChildView小到比TouchSlop还小，依然可以在
-ChildView外的GRL区域起作用。
-
 
 ```xml
 <GestureRefreshLayout>
@@ -190,6 +180,13 @@ public boolean onOptionsItemSelected(MenuItem item) {
 同时如果你不想手势滑动触发刷新，只需要调用setEnable(false)方法就可以禁用。
 ```java
     mGestureRefreshLayout.setEnabled(false);
+```
+
+GestureRefreshLayout默认是以RefreshView的高度作为释放刷新的距离（即当下拉出屏幕一个RefreshView的高度
+就会触发刷新动作），如果你的RefreshView的高度小于默认高度或者大于3倍默认高度，将会以默认下拉高度作为
+释放刷新距离，当然也可以完全自定义释放刷新的距离。
+```java
+    mGestureRefreshLayout.setDistanceToTriggerSync(120);
 ```
 
 ####高级用法
@@ -236,6 +233,16 @@ _为了保持结构简洁、用法简单，GestureRefreshLayout只提供基础�
 
 
 ## 实现原理
+
+原生SwipeRefreshLayout的ChildView的宽高会强制match_parent，而我们的GestureRefreshLayout可以支持Child
+View为wrap_content。宽度不足match_parent的RefreshView将会处于水平居中位置，未来可提供gravity和margin
+的支持。
+
+至于为何SRL（即SwipeRefreshLayout，以下通称SRL）会这样做，我猜测是因为SRL把触摸事件
+从ChildView拦截到SRL自身去做事件处理，它原生是可以从ChildView的区域滑出到SRL自身的区域，Touche事件可
+以无缝衔接，虽然...但是SRL和ChildView是没有间隙的，是严丝合缝的。而GRL（即GestureRefreshLayout，以下通
+称GRL）的ContentView是可以支持wrap_content的，就算你的ChildView小到比TouchSlop还小，依然可以在
+ChildView外的GRL区域起作用。
                
                +--------------------+   ------> OriginOffsetTop
                |   [Refresh View]   |
