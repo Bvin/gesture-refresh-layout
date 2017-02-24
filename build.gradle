@@ -5,14 +5,26 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath "com.android.tools.build:gradle:${ANDROID_GRADLE_PLUGIN_VERSION}"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:${ANDROID_MAVEN_GRADLE_PLUGIN_VERSION}"
     }
+}
+
+ext {
+    minSdkVersion = 9
+    targetSdkVersion = 25
+    compileSdkVersion = 25
+    buildToolsVersion = "25.0.2"
+    supportLibVersion = "25.1.0"
+    espressoVersion = "2.2.2"
+    testRunnerVersion = "0.5"
+    junitVersion = "4.12"
 }
 
 allprojects {
     repositories {
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 

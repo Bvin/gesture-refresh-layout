@@ -5,8 +5,8 @@ import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,6 +34,8 @@ public class GestureRefreshLayout extends ViewGroup {
     private static final int[] LAYOUT_ATTRS = new int[]{android.R.attr.enabled};
     private static final int INVALID_POINTER = -1;
     private static final float DRAG_RATE = .5f;
+    private static final int DEFAULT_REFRESH_DISTANCE = 64;
+    private static final int DEFAULT_REFRESH_ORIGINAL_POSITION = -40;
 
     private View mTarget;
     private OnRefreshListener mListener;
@@ -91,6 +93,8 @@ public class GestureRefreshLayout extends ViewGroup {
     // 是否移动Content在下拉的过程中
     private boolean mTranslateContent;
 
+    private OnLayoutTranslateCallback mOnLayoutTranslateCallback;
+
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
         public void onAnimationStart(Animation animation) {
@@ -133,10 +137,12 @@ public class GestureRefreshLayout extends ViewGroup {
         setEnabled(a.getBoolean(0, true));
         a.recycle();
 
-        // the absolute offset has to take into account that the circle starts at an offset
-        mTotalDragDistance = mSpinnerOffsetEnd = 64;
+        final DisplayMetrics metrics = getResources().getDisplayMetrics();
 
-        mOriginalOffsetTop = mCurrentTargetOffsetTop =  -40;// refresh height
+        // the absolute offset has to take into account that the circle starts at an offset
+        mTotalDragDistance = mSpinnerOffsetEnd = (int) (DEFAULT_REFRESH_DISTANCE * metrics.density);
+
+        mOriginalOffsetTop = mCurrentTargetOffsetTop = (int) (DEFAULT_REFRESH_ORIGINAL_POSITION * metrics.density);// refresh height
 
     }
 
@@ -157,6 +163,7 @@ public class GestureRefreshLayout extends ViewGroup {
     }
 
     void reset() {
+        ensureTarget();
         mRefreshView.clearAnimation();
         mRefreshView.setVisibility(View.GONE);
         setColorViewAlpha(MAX_ALPHA);
@@ -226,6 +233,10 @@ public class GestureRefreshLayout extends ViewGroup {
         mListener = listener;
     }
 
+    public void setOnLayoutTranslateCallback(OnLayoutTranslateCallback onLayoutTranslateCallback) {
+        mOnLayoutTranslateCallback = onLayoutTranslateCallback;
+    }
+
     /**
      * Pre API 11, alpha is used to make the progress circle appear instead of scale.
      */
@@ -243,7 +254,7 @@ public class GestureRefreshLayout extends ViewGroup {
         if (refreshing && mRefreshing != refreshing) {
             // scale and show
             mRefreshing = refreshing;
-            int endTarget = 0;
+            /*int endTarget = 0;
             if (!mUsingCustomStart) {
                 endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
             } else {
@@ -253,9 +264,11 @@ public class GestureRefreshLayout extends ViewGroup {
             // 没有使用自定义Start位置，mOriginalOffsetTop和mCurrentTargetOffsetTop相抵消
             // 就是mSpinnerOffsetEnd的位置。
             setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop,
-                    true /* requires update */);
+                    true *//* requires update *//*);
             mNotify = false;
-            startScaleUpAnimation(mRefreshListener);
+            startScaleUpAnimation(mRefreshListener);*/
+            mNotify = true;
+            animateStartToEndPosition(mRefreshListener);
         } else {
             setRefreshing(refreshing, false /* notify */);
         }
@@ -312,7 +325,29 @@ public class GestureRefreshLayout extends ViewGroup {
             if (mRefreshing) {
                 animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, mRefreshListener);
             } else {
-                startScaleDownAnimation(mRefreshListener);
+                Animation.AnimationListener listener = null;
+                if (!mScale) {
+                    listener = new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (!mScale) {
+                                startScaleDownAnimation(null);
+                            }
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+
+                    };
+                }
+                animateOffsetToStartPosition(mCurrentTargetOffsetTop, null);
+                //startScaleDownAnimation(mRefreshListener);
             }
         }
     }
@@ -332,9 +367,9 @@ public class GestureRefreshLayout extends ViewGroup {
 
     private void ensureTarget() {
         if (mTarget == null) {
-            if (getChildCount() > 2) {
+            /*if (getChildCount() > 2) {
                 throw new IllegalStateException("GestureRefreshLayout can host only 2 direct child");
-            } else {
+            } else */{
                 mTarget = getChildAt(0);
                 mRefreshView = getChildAt(1);
             }
@@ -361,11 +396,31 @@ public class GestureRefreshLayout extends ViewGroup {
             return;
         }
         measureChild(mRefreshView, widthMeasureSpec, heightMeasureSpec);
+
+        // measure other child view.
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child != mTarget && child != mRefreshView)
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
+        }
+
         if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
             mOriginalOffsetCalculated = true;
             mCurrentTargetOffsetTop = mOriginalOffsetTop = -mRefreshView.getMeasuredHeight();
-            // 比RefreshView多出64px
-            mTotalDragDistance = mSpinnerOffsetEnd = (int) (-mOriginalOffsetTop + mTotalDragDistance);
+            int defaultRefreshDistance = (int) (DEFAULT_REFRESH_DISTANCE
+                    * getResources().getDisplayMetrics().density);
+            int maxRefreshDistance = (int) (defaultRefreshDistance * 2.5);
+            if (mTotalDragDistance == defaultRefreshDistance
+                    && mRefreshView.getMeasuredHeight() > defaultRefreshDistance) {
+                if (mRefreshView.getMeasuredHeight() > maxRefreshDistance) {
+                    // 超过最大值就取最大值
+                    mTotalDragDistance = mSpinnerOffsetEnd = maxRefreshDistance;
+                } else {
+                    // 如果没有手动设置刷新距离还是默认值，就更改为RefreshView的高度加上默认值
+                    mTotalDragDistance = mSpinnerOffsetEnd = mRefreshView.getMeasuredHeight();
+                }
+            }
         }
         mRefreshViewIndex = -1;
         // Get the index of the circleview.
@@ -375,6 +430,15 @@ public class GestureRefreshLayout extends ViewGroup {
                 break;
             }
         }
+    }
+
+    /**
+     * Set the distance to trigger a sync in dips
+     *
+     * @param distance
+     */
+    public void setDistanceToTriggerSync(int distance) {
+        mTotalDragDistance = distance;
     }
 
     @Override
@@ -405,8 +469,32 @@ public class GestureRefreshLayout extends ViewGroup {
             return;
         }
 
-        mRefreshView.layout(childLeft, mCurrentTargetOffsetTop,
-                childLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
+        int refreshViewLeft = childLeft + (childWidth - mRefreshView.getMeasuredWidth()) / 2;
+
+        mRefreshView.layout(refreshViewLeft, mCurrentTargetOffsetTop,
+                refreshViewLeft + mRefreshView.getMeasuredWidth(), mCurrentTargetOffsetTop + mRefreshView.getMeasuredHeight());
+
+        // layout other child view
+        final int count = getChildCount();
+        final int parentLeft = getPaddingLeft();
+        final int parentRight = r - l - getPaddingLeft();
+
+        final int parentTop = getPaddingTop();
+        final int parentBottom = b - t - getPaddingBottom();
+        for (int i = 0; i < count; i++) {
+            final View view = getChildAt(i);
+            if (view.getVisibility() != GONE && view != mTarget && view != mRefreshView
+                    &&mCurrentTargetOffsetTop==mOriginalOffsetTop) {
+                // TODO: 2017/2/21 子控件对margin和gravity等的处理
+                view.layout(parentLeft, -view.getMeasuredHeight(), parentLeft + view.getMeasuredWidth(), 0);
+            }
+        }
+
+        if (mOnLayoutTranslateCallback != null) {
+
+            mOnLayoutTranslateCallback.onLayoutTranslate(mCurrentTargetOffsetTop
+            );
+        }
     }
 
     public void setChildScrollUpCallback(OnChildScrollUpCallback childScrollUpCallback) {
@@ -614,9 +702,9 @@ public class GestureRefreshLayout extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
-                if (mGestureChangeListener != null) {
+                /*if (mGestureChangeListener != null) {
                     mGestureChangeListener.onFinishDrag(y);
-                }
+                }*/
                 endDrag(overscrollTop);
                 mActivePointerId = INVALID_POINTER;
                 return false;
@@ -679,6 +767,9 @@ public class GestureRefreshLayout extends ViewGroup {
         Log.d(TAG, "endDrag: "+overscrollTop+","+mTotalDragDistance);
         if (overscrollTop > mTotalDragDistance){
             setRefreshing(true, true /* notify */);
+            if (mGestureChangeListener != null) {
+                mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
+            }
         }else {
             // cancel refresh
             mRefreshing = false;
@@ -704,9 +795,6 @@ public class GestureRefreshLayout extends ViewGroup {
                 };
             }
             animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);// 回程
-        }
-        if (mGestureChangeListener != null) {
-            mGestureChangeListener.onFinishDrag(mCurrentTargetOffsetTop);
         }
     }
 
@@ -742,6 +830,32 @@ public class GestureRefreshLayout extends ViewGroup {
         setTargetOffsetTopAndBottom(offset, false /* requires update */);
     }
 
+    private void animateStartToEndPosition(Animation.AnimationListener listener){
+        mRefreshView.setVisibility(View.VISIBLE);
+        mAnimateToEndPosition.reset();
+        mAnimateToEndPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
+        mAnimateToEndPosition.setInterpolator(mDecelerateInterpolator);
+        mAnimateToEndPosition.setAnimationListener(listener);
+        mRefreshView.clearAnimation();
+        mRefreshView.startAnimation(mAnimateToEndPosition);
+    }
+
+    private void moveToEnd(float interpolatedTime) {
+        /*int targetTop = 0;
+        targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
+        int offset = targetTop - mRefreshView.getTop();
+        setTargetOffsetTopAndBottom(offset, false *//* requires update *//*);*/
+
+        int endTarget = 0;
+        if (!mUsingCustomStart) {
+            endTarget = (mSpinnerOffsetEnd + mOriginalOffsetTop);
+        } else {
+            endTarget =  mSpinnerOffsetEnd;
+        }
+        setTargetOffsetTopAndBottom((int) ((endTarget - mCurrentTargetOffsetTop) * interpolatedTime),
+                true /* requires update */);
+    }
+
     private final Animation mAnimateToCorrectPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
@@ -763,6 +877,13 @@ public class GestureRefreshLayout extends ViewGroup {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
             moveToStart(interpolatedTime);
+        }
+    };
+
+    private final Animation mAnimateToEndPosition = new Animation() {
+        @Override
+        public void applyTransformation(float interpolatedTime, Transformation t) {
+            moveToEnd(interpolatedTime);
         }
     };
 
@@ -803,12 +924,12 @@ public class GestureRefreshLayout extends ViewGroup {
     }
 
     /**
-     * Classes that wish to override {@link SwipeRefreshLayout#canChildScrollUp()} method
+     * Classes that wish to override {@link #canChildScrollUp()} method
      * behavior should implement this interface.
      */
     public interface OnChildScrollUpCallback {
         /**
-         * Callback that will be called when {@link SwipeRefreshLayout#canChildScrollUp()} method
+         * Callback that will be called when {@link #canChildScrollUp()} method
          * is called to allow the implementer to override its behavior.
          *
          * @param parent SwipeRefreshLayout that this callback is overriding.
@@ -823,6 +944,10 @@ public class GestureRefreshLayout extends ViewGroup {
         void onStartDrag(float startY);
         void onDragging(float draggedDistance, float releaseDistance);
         void onFinishDrag(float endY);
+    }
+
+    public interface OnLayoutTranslateCallback {
+        void onLayoutTranslate(int movementTop);
     }
 
     /**
