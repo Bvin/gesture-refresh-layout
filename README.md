@@ -4,38 +4,11 @@
 
 Android gesture refresh layout.
 
-## Installation
-First, in your project's build.gradle add the jitpack.io repository like this:
-```
-allprojects {
- repositories {
-    ...
-    jcenter()
-    maven { url "https://jitpack.io" }
- }
-}
-```
-*Note: do not add the jitpack.io repository under buildscript.*
-
-
-Then, add the following dependency to your module's build.gradle file:
-```
-dependencies {
-    ...
-    compile 'com.github.bvin:gesture-refresh-layout:0.1.1'
-}
-```
-If you want to get the latest feature, you can find that release the end with letter "d"(the code on
- dev branch), example "com.github.bvin:gesture-refresh-layout:0.1.4d".The stable version is no end w
- ith letter "d".
- 
-If in your module already has support-v4 dependency, you should exclude the inner support module, li
-ke this:
-```
-compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
-        exclude group: 'com.android.support', module: 'support-compat'
-    }
-```
+## Swipe Gesture
+1. Both Translate, content and refresh view both translate, refresh view is next to content view transition.
+2. Content Translate, just translate content view.
+3. Refresher Translate, just translate refresh view.
+4. Both Fixed, content and refresh view both are fixed.
 
 ## Usage
 ```xml
@@ -57,14 +30,14 @@ mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshLis
         // after close refresh.
     }
 });
- mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
-     @Override
-     public void onStartDrag(float startY) {
-         mRefreshText.setText("pull to refresh");
-     }
+mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGestureStateChangeListener() {
+    @Override
+    public void onStartDrag(float startY) {
+        mRefreshText.setText("pull to refresh");
+    }
 
-     @Override
-     public void onDragging(float draggedDistance, float releaseDistance) {
+    @Override
+    public void onDragging(float draggedDistance, float releaseDistance) {
          //rotate angle: 360*draggedDistance/releaseDistance
          mProgressBar.setProgress((int) (draggedDistance/releaseDistance*100));
          Log.d(TAG, "onDragging: "+draggedDistance+","+releaseDistance);
@@ -74,13 +47,13 @@ mGestureRefreshLayout.setOnRefreshListener(new GestureRefreshLayout.OnRefreshLis
              mRefreshText.setText("refreshing...");
          }
 
-     }
+    }
 
-     @Override
-     public void onFinishDrag(float endY) {
-         mRefreshText.setText("update...");
-     }
- });   
+    @Override
+    public void onFinishDrag(float endY) {
+        mRefreshText.setText("update...");
+    }
+});   
                          
 ```
 trigger refresh any where:
@@ -94,16 +67,49 @@ public boolean onOptionsItemSelected(MenuItem item) {
 }
 ```
 
-## Swipe Gesture
-1. Both Translate, content and refresh view both translate, refresh view is next to content view transition.
-2. Content Translate, just translate content view.
-3. Refresher Translate, just translate refresh view.
-4. Both Fixed, content and refresh view both are fixed.
+## Installation
+First, in your project's build.gradle add the jitpack.io repository like this:
+```
+allprojects {
+ repositories {
+    ...
+    jcenter()
+    maven { url "https://jitpack.io" }
+ }
+}
+```
+*Note: do not add the jitpack.io repository under buildscript.*
+
+
+Then, add the following dependency to your module's build.gradle file:
+```
+dependencies {
+    ...
+    compile 'com.github.bvin:gesture-refresh-layout:0.1.7'
+}
+```
+If you want to get the latest feature, you can find that release the end with letter "d"(the code on
+ dev branch), example "com.github.bvin:gesture-refresh-layout:0.1.4d".The stable version is no end w
+ ith letter "d".
+ 
+If in your module already has support-v4 dependency, you should exclude the inner support module, li
+ke this:
+```
+compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
+```
 
 ---
 中文版
 
 Android手势刷新布局
+
+## 滑动手势
+1. 同步位移，即刷新视图跟随内容纵向位移，适合宽屏刷新视图。
+2. 悬浮位移，即内容视图固定，刷新视图跟着手势纵向位移，适合沉浸式刷新。
+3. 内容下潜位移，刷新视图固定，内容视图跟着手势纵向位移，这种情况一般是刷新视图会有吸引人的动画。
+4. 不位移，内容和刷新视图都不随手势位移，虽然纵向固定，但是可以通过其他形式来表现刷新行为。
 
 ## 安装
 首先，在项目根目录的build.gradle中添加JitPack远程仓库如下：
@@ -221,15 +227,11 @@ mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGest
     }
 });
 ```
+![自定义动画效果演示](https://raw.githubusercontent.com/bvin/gesture-refresh-layout/dev/screen/gesture-refresh-advance.gif)
 
 _为了保持结构简洁、用法简单，GestureRefreshLayout只提供基础手势滑动动画，其他任何表现刷新的动画和提示
 都需自己实现。_
 
-## 滑动手势
-1. 同步位移，即刷新视图跟随内容纵向位移，适合宽屏刷新视图。
-2. 悬浮位移，即内容视图固定，刷新视图跟着手势纵向位移，适合沉浸式刷新。
-3. 内容下潜位移，刷新视图固定，内容视图跟着手势纵向位移，这种情况一般是刷新视图会有吸引人的动画。
-4. 不位移，内容和刷新视图都不随手势位移，虽然纵向固定，但是可以通过其他形式来表现刷新行为。
 
 ## 实现原理
                
