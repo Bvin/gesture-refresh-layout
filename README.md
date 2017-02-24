@@ -128,7 +128,7 @@ allprojects {
 ```
 dependencies {
     ...
-    compile 'com.github.bvin:gesture-refresh-layout:0.1.1'
+    compile 'com.github.bvin:gesture-refresh-layout:0.1.7'
 }
 ```
 如果需要最新的功能，可以依赖以d结尾的在dev分支上发布的Tag，如 "com.github.bvin:gesture-refresh-layout:0.
@@ -136,7 +136,7 @@ dependencies {
 
 如果你的module中已经有support-v4依赖，应该去除内部的module，如下：
 ```
-compile ('com.github.bvin:gesture-refresh-layout:0.1.4d') {
+compile ('com.github.bvin:gesture-refresh-layout:0.1.7') {
         exclude group: 'com.android.support', module: 'support-compat'
     }
 ```
@@ -227,6 +227,7 @@ mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGest
     }
 });
 ```
+自定义动画效果演示：
 ![自定义动画效果演示](https://raw.githubusercontent.com/bvin/gesture-refresh-layout/dev/screen/gesture-refresh-advance.gif)
 
 _为了保持结构简洁、用法简单，GestureRefreshLayout只提供基础手势滑动动画，其他任何表现刷新的动画和提示
