@@ -227,7 +227,8 @@ mGestureRefreshLayout.setOnGestureChangeListener(new GestureRefreshLayout.OnGest
     }
 });
 ```
-自定义动画效果演示：
+自定义动画效果演示：  
+
 ![自定义动画效果演示](https://raw.githubusercontent.com/bvin/gesture-refresh-layout/dev/screen/gesture-refresh-advance.gif)
 
 _为了保持结构简洁、用法简单，GestureRefreshLayout只提供基础手势滑动动画，其他任何表现刷新的动画和提示
